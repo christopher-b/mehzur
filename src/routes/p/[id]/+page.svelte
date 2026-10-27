@@ -1,5 +1,7 @@
 <script lang="ts">
+	import Plus from '@lucide/svelte/icons/plus';
 	import FormError from '#lib/components/ui/FormError.svelte';
+	import AddTile from '#lib/components/ui/AddTile.svelte';
 	import { beforeNavigate, goto, invalidateAll } from '$app/navigation';
 	import { onDestroy, onMount } from 'svelte';
 	import { CollapsedState } from '#lib/client/collapsed.svelte.ts';
@@ -7,15 +9,16 @@
 	import { formatValue, measurementName } from '#lib/measurements.ts';
 	import { formatArea } from '#lib/units.ts';
 	import UploadList from './UploadList.svelte';
-	import AddRoom from './AddRoom.svelte';
 	import MeasurementRow from './MeasurementRow.svelte';
 	import MeasurementTable from './MeasurementTable.svelte';
 	import PhotoGrid from './PhotoGrid.svelte';
 	import RoomCard from './RoomCard.svelte';
+	import RoomAddDialog from './RoomAddDialog.svelte';
 	import RoomMenu from './RoomMenu.svelte';
 	import type { PageProps } from './$types';
 
 	let { data, form }: PageProps = $props();
+	let addingRoom = $state(false);
 
 	const NO_ROOM = 'no-room';
 	const collapsed = new CollapsedState(() => data.project.id);
@@ -132,7 +135,12 @@
 			/>
 		</RoomCard>
 	</div>
-	<AddRoom />
+	<div class="add-row">
+		<AddTile mode="button" aria-haspopup="dialog" onclick={() => (addingRoom = true)}>
+			<Plus size={22} aria-hidden="true" />Room
+		</AddTile>
+	</div>
+	<RoomAddDialog bind:open={addingRoom} />
 </section>
 
 {#if data.annotations.length > 0}

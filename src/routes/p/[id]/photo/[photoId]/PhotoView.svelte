@@ -15,7 +15,7 @@
 	import { notify } from '#lib/client/notify.svelte.ts';
 	import { canvasLabel } from '#lib/measurements.ts';
 	import { formatLength } from '#lib/units.ts';
-	import ChangeRoomDialog from './ChangeRoomDialog.svelte';
+	import PhotoChangeRoomDialog from './PhotoChangeRoomDialog.svelte';
 	import MeasurementDialog from './MeasurementDialog.svelte';
 	import MeasurementList from './MeasurementList.svelte';
 	import PhotoNav from './PhotoNav.svelte';
@@ -29,7 +29,7 @@
 	);
 
 	let canvas: ReturnType<typeof AnnotationCanvas>;
-	let roomDialogOpen = $state(false);
+	let changingRoom = $state(false);
 	let roomError = $state('');
 
 	const selectParam = page.url.searchParams.get('select');
@@ -126,7 +126,7 @@
 		roomError = '';
 		try {
 			if (roomId !== (data.photo.roomId ?? '')) await postAction('setRoom', { roomId });
-			roomDialogOpen = false;
+			changingRoom = false;
 		} catch (err) {
 			roomError = messageFor(err);
 			reportSession(err);
@@ -172,7 +172,7 @@
 
 	function onKeydown(e: KeyboardEvent) {
 		if (e.defaultPrevented) return;
-		const modalOpen = dialogState || roomDialogOpen || anyPopupOpen();
+		const modalOpen = dialogState || changingRoom || anyPopupOpen();
 		if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && !(e.altKey || e.ctrlKey || e.metaKey || e.shiftKey)) {
 			if (modalOpen || pendingPoint) return;
 			if ((e.target as HTMLElement).closest(TEXT_FIELD)) return;
@@ -234,7 +234,7 @@
 						onclick={() => {
 							close(true);
 							roomError = '';
-							roomDialogOpen = true;
+							changingRoom = true;
 						}}
 					>
 						<DoorOpen size={18} />Change room
@@ -297,8 +297,8 @@
 	ondelete={() => dialogState?.mode === 'edit' && deleteAnnotation(dialogState.id)}
 />
 
-<ChangeRoomDialog
-	bind:open={roomDialogOpen}
+<PhotoChangeRoomDialog
+	bind:open={changingRoom}
 	rooms={data.rooms}
 	currentRoomId={data.photo.roomId}
 	{busy}

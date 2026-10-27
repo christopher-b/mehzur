@@ -31,6 +31,23 @@ Also: `npm run test:e2e:safari` after UI or style changes; `npm run db:generate`
 - **Database calls:** better-sqlite3 is synchronous, but server code still `await`s every call through the shared `Db` type (a leftover from when D1 was supported). Transactions are available (`db.transaction((tx) => ...)`, synchronous inside: use `.get()`, `.all()`, `.run()`). Account creation, invites and email changes use one; most other multi-step writes are not wrapped yet. Hash a password before the transaction starts, never inside it.
 - **Shared pieces:** shared UI is in `src/lib/components/ui/`, shared styles and design tokens in `src/app.css`, failure messages in one table in `src/lib/client/errors.ts`. Prefer these over new one-off versions.
 
+## Naming components
+
+Name a component for what it is, so a file list reads like the screen.
+
+| Kind | Name | Examples |
+| --- | --- | --- |
+| Dialog | `<Thing><Action>Dialog` | `ProjectAddDialog`, `ProjectEditDialog`, `ProjectShareDialog`, `RoomAddDialog`, `RoomRenameDialog`, `PhotoChangeRoomDialog` |
+| Dialog doing several actions, chosen by a `mode` prop | `<Thing>Dialog` | `MeasurementDialog` (create and edit) |
+| Form shared by several dialogs or pages | `<Thing><Part>Form` | `ProjectForm`, `RoomNameForm`, `RoomAreaForm` |
+| Menu | `<Thing>Menu` | `ProjectMenu`, `RoomMenu` |
+| Shared building block | what it is, in `components/ui/` | `Dialog`, `Modal`, `PopupMenu`, `AddTile`, `FormError`, `PasswordPair` |
+
+- The thing comes first, then the action (a verb), so related files sort together. Do not start a name with the verb (`AddProject`), and do not call something a dialog unless it is one.
+- A dialog holds no trigger. The page or menu that opens it renders the button (for example an `AddTile`) and passes `bind:open`. The flag is named for the action in the gerund: `adding`, `editing`, `sharing`, `renaming`, `changingRoom`.
+- `open` is always `$bindable(false)`. A dialog that posts its own form (`ProjectAddDialog`, `RoomRenameDialog`) closes itself on success; one that the parent saves for (`MeasurementDialog`, `PhotoChangeRoomDialog`) takes `onsave`, `busy` and `error`.
+- The dialog's title is the action and thing in plain words ("Add a project", "Rename room"), and its accessible name is a contract with the browser tests.
+
 AI coding agents: see also [AGENTS.md](../AGENTS.md).
 
 Decisions and known limitations are in [decisions.md](decisions.md); the code layout is in [architecture.md](architecture.md).

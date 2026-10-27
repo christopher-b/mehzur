@@ -176,6 +176,11 @@ html [role='status']:empty {
 .spacer {
 	flex: 1;
 }
+.add-row {
+	display: flex;
+	justify-content: center;
+	margin: 1.25rem 0;
+}
 .empty {
 	color: var(--text-muted);
 }

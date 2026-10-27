@@ -21,7 +21,7 @@ Mehzur is a SvelteKit 3 / Svelte 5 app (SQLite, Docker) for measuring rooms from
 ## UI building blocks (reuse these)
 
 - `src/lib/components/ui/Dialog.svelte`: a native modal `<dialog>` with a title and any content. `Modal.svelte` is a Dialog holding one form. `PopupMenu.svelte` is for menus and small popovers; `AddTile.svelte` is the dashed "+" tile.
-- Forms shared between create and edit: `ProjectForm.svelte` (create in `routes/AddProject.svelte`, edit in `ProjectEditDialog.svelte`) and `routes/p/[id]/RoomNameForm.svelte` (add in `AddRoom.svelte`, rename in `RoomRenameDialog.svelte`). `MeasurementDialog.svelte` already does create and edit with a `mode` prop. Add a mode or prop before writing a near copy.
+- Forms shared between create and edit: `ProjectForm.svelte` (create in `routes/ProjectAddDialog.svelte`, edit in `ProjectEditDialog.svelte`) and `routes/p/[id]/RoomNameForm.svelte` (add in `RoomAddDialog.svelte`, rename in `RoomRenameDialog.svelte`). `MeasurementDialog.svelte` already does create and edit with a `mode` prop. Add a mode or prop before writing a near copy. Component names follow the rule in [docs/contributing.md](docs/contributing.md#naming-components).
 - `ProjectMenu.svelte` takes the project as a prop and owns its edit and share dialogs, so it works in the project header and on each project in the list.
 - Forms use `use:enhance={submitWith({...})}` from `#lib/client/enhance.ts`; `postAction` (`#lib/client/actions.ts`) is the other way to submit and is used by the measurement and change-room dialogs.
 

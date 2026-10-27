@@ -1,10 +1,13 @@
 <script lang="ts">
+	import Plus from '@lucide/svelte/icons/plus';
 	import ProjectMenu from '#lib/components/ProjectMenu.svelte';
+	import AddTile from '#lib/components/ui/AddTile.svelte';
 	import { formatArea, unitLabel } from '#lib/units.ts';
-	import AddProject from './AddProject.svelte';
+	import ProjectAddDialog from './ProjectAddDialog.svelte';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
+	let adding = $state(false);
 </script>
 
 <svelte:head><title>Projects · Mehzur</title></svelte:head>
@@ -48,7 +51,12 @@
 	</ul>
 {/if}
 
-<AddProject />
+<div class="add-row">
+	<AddTile mode="button" aria-haspopup="dialog" onclick={() => (adding = true)}>
+		<Plus size={22} aria-hidden="true" />Project
+	</AddTile>
+</div>
+<ProjectAddDialog bind:open={adding} />
 
 {#if data.shared.length > 0}
 	<h2>Shared with me</h2>
