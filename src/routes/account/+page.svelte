@@ -1,11 +1,12 @@
 <script lang="ts">
 	import FormError from '#lib/components/ui/FormError.svelte';
+	import PasswordPair from '#lib/components/ui/PasswordPair.svelte';
 	import { enhance } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import { submitWith } from '#lib/client/enhance.ts';
 	import { addPasskey, browserSupportsWebAuthn } from '#lib/client/passkeys.ts';
-	import { NAME_MAX_LENGTH, PASSWORD_MIN_LENGTH } from '#lib/constants.ts';
+	import { NAME_MAX_LENGTH } from '#lib/constants.ts';
 	import type { PageProps } from './$types';
 
 	let { data, form }: PageProps = $props();
@@ -65,14 +66,7 @@
 	<h2>Password</h2>
 	<form method="POST" action="?/password" use:enhance={submitWith({ reset: true })} class="stack">
 		<label>Current password <input type="password" name="current" autocomplete="current-password" required /></label>
-		<label>
-			New password
-			<input type="password" name="password" minlength={PASSWORD_MIN_LENGTH} autocomplete="new-password" required />
-		</label>
-		<label>
-			Repeat the new password
-			<input type="password" name="confirm" minlength={PASSWORD_MIN_LENGTH} autocomplete="new-password" required />
-		</label>
+		<PasswordPair repeatLabel="Repeat the new password" />
 		<button type="submit">Change password</button>
 	</form>
 	<FormError message={form?.passwordError} />

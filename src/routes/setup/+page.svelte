@@ -1,6 +1,7 @@
 <script lang="ts">
 	import FormError from '#lib/components/ui/FormError.svelte';
-	import { NAME_MAX_LENGTH, PASSWORD_MIN_LENGTH } from '#lib/constants.ts';
+	import PasswordPair from '#lib/components/ui/PasswordPair.svelte';
+	import { NAME_MAX_LENGTH } from '#lib/constants.ts';
 	import type { PageProps } from './$types';
 
 	let { form }: PageProps = $props();
@@ -24,14 +25,7 @@
 			Email
 			<input type="email" name="email" value={form?.email ?? ''} autocomplete="username" required />
 		</label>
-		<label>
-			New password
-			<input type="password" name="password" minlength={PASSWORD_MIN_LENGTH} autocomplete="new-password" required />
-		</label>
-		<label>
-			Repeat the password
-			<input type="password" name="confirm" minlength={PASSWORD_MIN_LENGTH} autocomplete="new-password" required />
-		</label>
+		<PasswordPair />
 		<FormError message={form?.error} />
 		<button type="submit" class="primary">Create account</button>
 	</form>
