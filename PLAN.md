@@ -15,7 +15,6 @@ The app is built: house photo measurement for a small group of invited people, w
 
 ## Left to do
 - [ ] Try the email-change link through Proton SMTP (Account > Email address); password reset, passkeys and migration 0003 are confirmed in production
-- [ ] Optional, small gain: the account page's profile name, passkey rename and new-passkey name are three similar inline "name + Save" forms; an `InlineNameForm` could cover them, but each has different wording and behaviour.
 - Already shared, nothing to do: measurements use one `MeasurementDialog.svelte` for both create and edit (`mode` prop).
 
 ## Not planned
