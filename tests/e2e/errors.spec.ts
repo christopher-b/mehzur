@@ -12,7 +12,6 @@ import {
 	photoCanvas,
 	photoMenuButton,
 	roomCard,
-	deselect,
 	dragHandle,
 	expectReadable,
 	expectNoTechnicalText,
@@ -54,7 +53,6 @@ const FAILURE_PAGE = /Something went wrong|Internal/;
 test.describe('failures that should never be silent (baseline)', () => {
 	test('E3: an expired session while saving a measurement keeps the dialog and the value', async ({ page, context }) => {
 		await seedKitchenWithMeasurements(page);
-		await deselect(page);
 		await startMeasurement(page, 0.7);
 		await measurementField(page).fill(`8'`);
 		await expireSession(context);
@@ -65,7 +63,6 @@ test.describe('failures that should never be silent (baseline)', () => {
 
 	test('E3: saving a measurement offline shows the offline wording', async ({ page, context }) => {
 		await seedKitchenWithMeasurements(page);
-		await deselect(page);
 		await startMeasurement(page, 0.7);
 		await measurementField(page).fill(`8'`);
 		await goOffline(context);
@@ -142,7 +139,6 @@ test.describe('failures that should never be silent (baseline)', () => {
 
 	test('E5: an expired session while saving a measurement keeps it for after signing in', async ({ page, context }) => {
 		const { photoUrl } = await seedKitchenWithMeasurements(page);
-		await deselect(page);
 		await startMeasurement(page, 0.7);
 		await measurementField(page).fill(`8'`);
 		await expireSession(context);

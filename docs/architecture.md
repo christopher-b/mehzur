@@ -63,6 +63,7 @@ The app has a web manifest and icons, so on a phone you can add it to the home s
 ## Measuring
 
 - **Names:** a measurement saved with no name is given one such as "Living Room 1-A" (the room, the photo's place in that room, a letter). The name is stored, so it does not change if the room is renamed or the photo moves. Clearing a name on edit gives a new one. Measurements from before this show as "Measurement x".
+- **Selecting and drawing:** tapping a line selects it. With one selected, a tap on empty photo deselects it and places the first point of a new measurement in the same tap; Esc deselects without starting one.
 - **Keyboard:** the end points of the selected measurement are buttons ("Start of ...", "End of ..."). The arrow keys move one by 0.5% of the photo (Shift: 2%) and the move is saved shortly after the last key.
 
 ## Limits

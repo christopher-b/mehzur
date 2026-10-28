@@ -19,6 +19,7 @@ import {
 	roomMenuButton,
 	seedKitchenWithMeasurements,
 	startMeasurement,
+	tapAt,
 	uniqueName,
 	visit,
 	waitForPhoto,
@@ -84,7 +85,6 @@ test('drawing a measurement: number pad, helper keys, preview, optional name, sa
 	await expect(page.locator('.annotation.selected')).toHaveCount(1);
 
 	// the next dialog opens on the number pad again
-	await deselect(page);
 	await startMeasurement(page, 0.6);
 	await expect(measurementField(page)).toHaveAttribute('inputmode', 'decimal');
 });
@@ -217,7 +217,6 @@ test('a measurement given no name is named after its room, photo and a letter', 
 	await addAndOpenPhoto(page, 'Living Room');
 
 	await drawMeasurement(page, `10'`);
-	await deselect(page);
 	await drawMeasurement(page, `12'`, { y: 0.6 });
 	await expect(aside(page).getByRole('listitem')).toContainText(['Living Room 1-A', 'Living Room 1-B']);
 
@@ -232,6 +231,28 @@ test('a measurement given no name is named after its room, photo and a letter', 
 	await expect(aside(page).getByRole('listitem')).toContainText(['Living Room 1-A', 'Living Room 1-B']);
 });
 
+test('with a measurement selected, the first tap on empty photo starts a new one', async ({ page }) => {
+	await createProject(page, uniqueName('First tap'));
+	await addRoom(page, 'Kitchen');
+	await addAndOpenPhoto(page, 'Kitchen');
+
+	await drawMeasurement(page, `10'`, { y: 0.3 });
+	await expect(page.locator('.annotation.selected')).toHaveCount(1);
+
+	await tapAt(page, 0.2, 0.7);
+	await expect(page.locator('.annotation.selected')).toHaveCount(0);
+	await expect(page.getByText(/second point/)).toBeVisible();
+	await tapAt(page, 0.7, 0.7);
+	await expect(measurementDialog(page)).toBeVisible();
+	await measurementField(page).fill(`12'`);
+	await measurementDialog(page).getByRole('button', { name: 'Save' }).click();
+	await expect(page.locator('.annotation')).toHaveCount(2);
+
+	// tapping a line still selects it, and Escape clears the selection without starting a measurement
+	await deselect(page);
+	await expect(page.getByText(/second point/)).toHaveCount(0);
+});
+
 test('a metric project reads a bare number as metres and offers metric unit keys', async ({ page }) => {
 	await createProject(page, uniqueName('Metric'), 'metric');
 	await addRoom(page, 'Kitchen');
@@ -239,7 +260,6 @@ test('a metric project reads a bare number as metres and offers metric unit keys
 
 	await drawMeasurement(page, '3.25');
 	await expect(page.locator('.annotation text')).toHaveText('Kitchen 1-A: 3.25 m');
-	await deselect(page);
 
 	await startMeasurement(page, 0.6);
 	const dialog = measurementDialog(page);

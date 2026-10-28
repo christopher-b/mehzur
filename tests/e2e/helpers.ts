@@ -194,9 +194,9 @@ export async function drawMeasurement(page: Page, value: string, opts: { name?: 
 	await expect(measurementDialog(page)).toBeHidden();
 }
 
-/** The first tap on empty photo only deselects a selected measurement. */
+/** Escape deselects; a tap on empty photo would start a new measurement instead. */
 export async function deselect(page: Page) {
-	await tapAt(page, 0.5, 0.97);
+	await page.keyboard.press('Escape');
 	await expect(page.locator('.annotation.selected')).toHaveCount(0);
 }
 
@@ -369,7 +369,6 @@ export async function seedKitchenWithMeasurements(page: Page, units: 'imperial' 
 	await addRoom(page, 'Kitchen');
 	const photoUrl = await addAndOpenPhoto(page, 'Kitchen');
 	await drawMeasurement(page, units === 'imperial' ? `12'` : '3.5', { name: 'Length', y: 0.3 });
-	await deselect(page);
 	await drawMeasurement(page, units === 'imperial' ? `10'` : '3', { name: 'Width', y: 0.5 });
 	return { project, projectUrl, photoUrl };
 }

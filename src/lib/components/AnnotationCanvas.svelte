@@ -108,10 +108,7 @@
 		}
 		const p = toPoint(e);
 		if (!pointA) {
-			if (selectedId) {
-				onselect(null);
-				return;
-			}
+			if (selectedId) onselect(null);
 			setPointA(p);
 			hover = p;
 			return;

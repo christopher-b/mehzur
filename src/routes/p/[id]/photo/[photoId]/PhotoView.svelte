@@ -201,7 +201,7 @@
 		pendingPoint
 			? 'Tap the second point. Esc to cancel.'
 			: selectedId
-				? 'Drag the blue handles to adjust. Tap the photo to deselect.'
+				? 'Drag the blue handles to adjust, or tap the photo to start a new measurement. Esc deselects.'
 				: 'Tap two points on the photo to add a measurement.'
 	);
 </script>

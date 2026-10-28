@@ -1,7 +1,6 @@
 import { expect, test } from './fixtures';
 import {
 	createProject,
-	deselect,
 	expectAllControlsNamed,
 	expectReadable,
 	measurementDialog,
@@ -42,7 +41,6 @@ for (const colorScheme of ['light', 'dark'] as const) {
 			await expectReadable(page);
 			await page.getByRole('dialog').getByRole('button', { name: 'Cancel' }).click();
 
-			await deselect(page); // the last measurement is still selected
 			await startMeasurement(page, 0.7);
 			await expectReadable(page);
 			await expect(measurementDialog(page)).toBeVisible();

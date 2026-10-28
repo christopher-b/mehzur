@@ -55,6 +55,7 @@ Takes about 15 minutes. Use a **fresh project** so nothing old gets in the way.
 - [ ] Save a measurement with the name left blank: it is called after its room, the photo's place in that room and a letter (for example "Kitchen 1-A"; "Other 1-A" with no room), and the next one on the room gets "-B".
 - [ ] The line and its label appear on the photo, and the label is **readable on a bright photo and on a dark one**. The measurement appears in the list below.
 - [ ] Type nonsense (for example `abc`): "Not recognised" shows and Save refuses it.
+- [ ] With a measurement selected, tap an empty part of the photo: the selection clears **and** the first point of a new measurement is placed (a red ring), so two taps in total draw the next line. Tapping the selected line again keeps it selected.
 - [ ] **Drag an end point.** Tap the line to select it (it turns blue with two round handles). Drag a handle with your finger. **The page must not scroll while you drag**, the end point follows your finger, and it is still there after you reload. Scrolling the page from outside the photo still works. Pinch-zooming the page still works.
 - [ ] **Keyboard handles** (iPad or a phone with a Bluetooth keyboard, or desktop Safari): select a measurement, Tab to "Start of …", and press the arrow keys. The end point moves in small steps (Shift: larger), and it is still there after a reload.
 - [ ] In a **metric** project: a bare `3.25` becomes `3.25 m`, and the keys under the field are **m, cm, mm**.

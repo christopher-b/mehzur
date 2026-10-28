@@ -4,7 +4,6 @@ import {
 	addPhotos,
 	addRoom,
 	createProject,
-	deselect,
 	drawMeasurement,
 	isTouch,
 	makeImage,
