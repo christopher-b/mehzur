@@ -17,7 +17,7 @@
 npm run check          # Svelte/TypeScript: 0 errors and 0 warnings
 npm test               # unit and route tests (Vitest)
 npm run check:e2e      # type-check the browser tests
-npm run test:e2e       # browser tests, Chromium (about 2 minutes)
+npm run test:e2e       # browser tests, Chromium (builds first; about 3 to 4 minutes)
 ```
 
 Also: `npm run test:e2e:safari` after UI or style changes; `npm run db:generate` after a schema change (and commit the new migration in `drizzle/`).

@@ -33,7 +33,7 @@ Signed-in addresses need a session (a random token in the `mehzur_session` cooki
 | `GET /p/<id>/export.csv` | CSV of the project: one row per measurement (room, room area, photo, measurement, value, value in mm) |
 | `GET /p/<id>/export.pdf` | PDF of the project: each room's photos with the measurement lines drawn on, and the measurements listed |
 | `GET /api/photos/<key>` | The photo file, only if the photo belongs to a project you own or are a guest on (the key is looked up in the database; served with long-lived private caching; keys are never reused) |
-| `POST /api/projects/<id>/photos` | Upload one photo (multipart: `file` as JPEG, PNG or WebP up to 15 MB, `width`, `height`, optional `roomId`). Answers `201` with the new photo. Errors are JSON `{ message }` |
+| `POST /api/projects/<id>/photos` | Upload one photo (multipart: `file` as JPEG, PNG or WebP up to 15 MB, `width`, `height`, optional `roomId`). The file's first bytes must match its type, otherwise `415`. Answers `201` with the new photo. Errors are JSON `{ message }` |
 | `GET /api/health` | Checks the database and photo storage; answers `{ db, storage }` |
 | `POST /logout` | Ends this session (removed from the database) and redirects to `/login` |
 | `GET /manifest.webmanifest`, `/icon.svg`, `/icon-192.png`, `/icon-512.png`, `/apple-touch-icon.png` | Home-screen install files. Public (no session needed) |
@@ -99,8 +99,8 @@ Signed-in addresses need a session (a random token in the `mehzur_session` cooki
 ### `/p/<id>/photo/<photoId>` (photo page)
 | Action | Fields | What it does |
 |---|---|---|
-| `?/create` | line end points (`x1` `y1` `x2` `y2`, fractions 0 to 1), `value`, optional `name` | Adds a measurement. The value is read in the project's units (`12' 6"`, `3.2m`, ...) |
-| `?/update` | `id`, `value`, `name` | Edits a measurement |
+| `?/create` | line end points (`x1` `y1` `x2` `y2`, fractions 0 to 1), `value`, optional `name` | Adds a measurement. The value is read in the project's units (`12' 6"`, `3.2m`, ...). With no name it gets a default one such as `Living Room 1-A` |
+| `?/update` | `id`, `value`, `name` | Edits a measurement. A blank name gets a new default one |
 | `?/move` | `id`, `x1` `y1` `x2` `y2` | Saves new end points after a drag |
 | `?/delete` | `id` | Deletes a measurement |
 | `?/setRoom` | `roomId` (empty for "No room") | Moves the photo, and its measurements, to another room (clears any room area built from them) |

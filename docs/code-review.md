@@ -6,6 +6,8 @@ A review of the whole codebase for correctness, error prevention, readability, c
 
 Things recorded as deliberate in `docs/decisions.md` are **not** reported here as problems: browser `confirm()` for deletes, no bigger tap targets in general, light theme only, `Db` typed with `any`, repeated project lookups per action, few transactions where the write order is harmless, and `AnnotationCanvas` kept as one component. Task B3 is the one exception: it asks for a transaction, because there the write order is *not* harmless.
 
+**Status (27 Oct 2026):** every task below is done except those marked otherwise (D1, D5 and E5 were left on purpose; E2 still needs owner decisions, now in `PLAN.md`). Descriptions use the names the code had when the review was written. Since then `AddProject`, `AddRoom` and `ChangeRoomDialog` became `ProjectAddDialog`, `RoomAddDialog` and `PhotoChangeRoomDialog`, and unnamed measurements get a default name.
+
 ---
 
 ## How to use this document (for the implementer)

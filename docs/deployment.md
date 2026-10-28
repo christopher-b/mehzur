@@ -103,6 +103,8 @@ mehzur.example.com {
 
 With nginx, also send `proxy_set_header Host $host;`, `proxy_set_header X-Forwarded-Proto $scheme;` and raise `client_max_body_size` to at least `20m`.
 
+The app sets `X-Content-Type-Options`, `Referrer-Policy: same-origin`, `X-Frame-Options: DENY` and a Content-Security-Policy on every response (see D51 in [decisions.md](decisions.md)). Do not set conflicting values in the proxy: a CSP added there is combined with the app's and can block the app's own scripts. If the page loads but nothing responds to taps, check the browser console for a CSP error.
+
 If login fails with "Cross-site POST form submissions are forbidden", the app's idea of its own address doesn't match the browser's: `PLAIN_HTTP` is wrong for how you are connecting, or the proxy isn't sending `X-Forwarded-Proto`.
 
 ### Behind Traefik

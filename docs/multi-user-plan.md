@@ -1,7 +1,8 @@
 # Mehzur: multi-user support, implementation plan
 
-Status: all questions answered or defaulted (see "Answers" below). Phase 1 is being built; the
-progress log is at the end.
+Status: built (phase 1 and phase 2: accounts, invites, private projects, email reset, administrator page,
+sharing, passkeys and changing your email address). This is the planning record; what the app does now is
+in the [README](../README.md) and [decisions.md](decisions.md). The progress log is at the end.
 
 ## Answers (25 Oct 2026)
 
@@ -49,7 +50,7 @@ progress log is at the end.
 - **U8 docs**: deployment gains the SMTP and `APP_URL` settings and Proton SMTP notes; decisions
   record "Docker only for multi-user".
 
-## Where the app is today
+## Where the app was before this work
 
 - One shared password (`APP_PASSWORD`). Signing in sets an HMAC-signed cookie `mehzur_session`
   holding only an expiry (`<expiry>.<signature>`, 30 days). There is no notion of who is signed in.
@@ -61,7 +62,7 @@ progress log is at the end.
 - Project-scoped lookups are already centralised in a few helpers (`getProjectOr404`,
   `getPhotoOr404`, `findRoomInProject`), which is the natural place to add access checks.
 
-## Recommended scope (defaults, pending the questions)
+## Recommended scope (the defaults proposed before the questions were answered)
 
 - Accounts created by an admin (no public sign-up). Email or username plus password.
 - Each project has an owner; projects are private to their owner. Sharing comes later (phase 2),
@@ -152,7 +153,7 @@ Estimated effort: phase 1 about 3 to 4 days including tests; sharing (phase 2) a
   `docs/deployment.md` (first admin, `APP_PASSWORD` role, backups now hold accounts), `.env.example`,
   phone checklist (sign in as a named user).
 
-## Phase 2: sharing and passkeys (decided, not built)
+## Phase 2: sharing and passkeys (built, 26 Oct 2026)
 
 ### Decisions (26 Oct 2026)
 
@@ -300,7 +301,6 @@ Cloudflare builds compile.
 | U10 Passkeys | yes (26 Oct 2026) | `drizzle/0006_passkeys.sql`, `src/lib/server/passkeys.ts`, `/login/passkey/*`, `/account/passkeys/*`; D50. Tests: `passkeys.test.ts`, `passkey-routes.test.ts`, and `tests/e2e/passkeys.spec.ts` (Chromium virtual authenticator; WebKit skipped). Not yet tried on a real phone in production |
 | U12 Change email | yes (26 Oct 2026) | `drizzle/0005_email_change.sql`, `src/lib/server/emailChange.ts`, `/account/email/<token>`; D49. Tests: `src/tests/email-change.test.ts`, `tests/e2e/account.spec.ts`. The emailed-link path is covered with a fake mailer only; try it once through real Proton SMTP |
 | U11 Sharing | yes (26 Oct 2026) | `drizzle/0004_sharing.sql`, `src/lib/server/sharing.ts`, `ProjectShareDialog.svelte` (a dialog opened from `ProjectMenu.svelte`, which the project list also uses); decisions as in the table above (D48). Tests: `sharing.test.ts`, a guest section in `isolation.test.ts`, `tests/e2e/sharing.spec.ts` |
-| Sharing | no | Phase 2 |
 
 ### Changed from the plan
 
@@ -311,5 +311,5 @@ Cloudflare builds compile.
 
 ### Left for later
 
-Sharing a project between people (roles, a Share option, "Shared with me"); passkeys;
-changing your email address; an admin-visible list of who made what (the data is recorded already).
+An admin-visible list of who made what (the data is recorded already). Sharing, passkeys and changing
+your email address are done (see U10 to U12 above).

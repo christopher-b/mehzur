@@ -13,7 +13,7 @@ Playwright tests drive the real app in a browser: sign in, create projects and r
 
 ```sh
 npx playwright install chromium   # once: downloads the browser the tests use
-npm run test:e2e                  # builds the app, starts it, runs everything (about 2 minutes)
+npm run test:e2e                  # builds the app, starts it, runs everything (3 to 4 minutes)
 npm run test:e2e:report           # open the HTML report of the last run
 ```
 

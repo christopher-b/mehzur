@@ -21,7 +21,7 @@ Takes about 15 minutes. Use a **fresh project** so nothing old gets in the way.
 - [ ] The **account menu** (your name in the header) shows your email, **Account**, **Users** (administrator only) and **Sign out**. Tap outside it: it closes. A long name is shortened with "…" and the project-menu button still fits beside the project name.
 - [ ] **Invite** (administrator): Users > Create invite link. Send the link to yourself (or open it in a private tab): the Join page asks for a name and a password, signs you in, and shows no projects from the administrator. Opening the same link again says it is no longer valid.
 - [ ] **Sharing** (two accounts): Project menu > Share, enter the other person's email: they appear in the list, and the project shows under **Shared with me** on their home page with "Shared by ...". As a guest they can add photos and rooms but the menu has no Share and Edit project has no Delete; **Leave project** works. **Hand over** swaps the roles; **Remove** takes the project away from them at once.
-- [ ] **Project list menu:** on the home page each project row has a menu button with the same items as the project page (Edit project, Share, Export CSV, Export PDF). Edit project and Share open a dialog; saving a new name or units updates the row without leaving the list. The menu opens fully on screen for the last row.
+- [ ] **Project list menu:** on the home page each project row has a menu button with the same items as the project page (Edit project, Share, Export CSV, Export PDF, and Leave project or Delete project depending on your role). Edit project and Share open a dialog; saving a new name or units updates the row without leaving the list. The menu opens fully on screen for the last row.
 - [ ] **Forgot your password?** (needs email set up): the email arrives from mehzur@cbennell.com within a minute, the link opens the new-password page, and the old password stops working afterwards. Asking for an address that has no account shows the same "we have sent it a link" message and sends nothing.
 - [ ] **Account > Email address** (needs email set up): enter a new address and your password; a link arrives at the new address, and your email does not change until you open it and tap the button. The old address gets a notice, other devices are signed out, and signing in works with the new address only.
 - [ ] **Passkeys** (production, https): Account > Passkeys > name it, **Add a passkey**: the phone asks for fingerprint, face or PIN, and it appears in the list. Sign out, then **Sign in with a passkey** on the sign-in page: it offers the passkey, and you are in without typing anything. Remove the passkey: the password still signs you in.
@@ -30,6 +30,7 @@ Takes about 15 minutes. Use a **fresh project** so nothing old gets in the way.
 ## 2. Project, header and rooms
 
 - [ ] Create a project with a **very long name** (for example "The Very Long Named Cottage By The Lake"). The header shows `Mehzur / <name…> ☰` with the name shortened by "…", the project-menu button still visible beside it, and **"Sign out" stays on one line** and fully on screen.
+- [ ] On the home page, tap **+ Project**: an **Add a project** dialog opens, the name field is focused and the keyboard opens. The **name field, the units and the Create button are reachable above the keyboard**. Cancel closes it and focus is not lost.
 - [ ] Tap **+ Room**: an **Add a room** dialog opens, the name field is focused and the keyboard opens. The **name field and the Add room button are still visible above the keyboard** (scroll if you must, but they must be reachable).
 - [ ] Add rooms "Kitchen" and "Bedroom". The dialog closes and both cards appear.
 - [ ] Open a room's **hamburger menu**: Rename and Delete room appear fully on screen. Tap outside the menu: it closes.
@@ -51,9 +52,11 @@ Takes about 15 minutes. Use a **fresh project** so nothing old gets in the way.
 - [ ] In an imperial project, type `12`, tap the **'** key under the field, type `6`, tap **"**. The field reads `12'6"` and the preview says `= 12' 6"`. The keyboard **stays open** while you tap those keys.
 - [ ] Tap **ABC**: the full keyboard appears. Tap **123**: the number pad returns.
 - [ ] "(optional)" sits on the same line as "Name". Type a name; Save works with the keyboard open (the Save button is reachable).
+- [ ] Save a measurement with the name left blank: it is called after its room, the photo's place in that room and a letter (for example "Kitchen 1-A"; "Other 1-A" with no room), and the next one on the room gets "-B".
 - [ ] The line and its label appear on the photo, and the label is **readable on a bright photo and on a dark one**. The measurement appears in the list below.
 - [ ] Type nonsense (for example `abc`): "Not recognised" shows and Save refuses it.
 - [ ] **Drag an end point.** Tap the line to select it (it turns blue with two round handles). Drag a handle with your finger. **The page must not scroll while you drag**, the end point follows your finger, and it is still there after you reload. Scrolling the page from outside the photo still works. Pinch-zooming the page still works.
+- [ ] **Keyboard handles** (iPad or a phone with a Bluetooth keyboard, or desktop Safari): select a measurement, Tab to "Start of …", and press the arrow keys. The end point moves in small steps (Shift: larger), and it is still there after a reload.
 - [ ] In a **metric** project: a bare `3.25` becomes `3.25 m`, and the keys under the field are **m, cm, mm**.
 - [ ] Tap two points but change your mind: tap **Cancel** next to the hint above the photo; the half-placed point disappears and nothing is left behind.
 
@@ -81,6 +84,8 @@ Takes about 15 minutes. Use a **fresh project** so nothing old gets in the way.
 - [ ] With dark mode **on**, every screen is still fully readable (white buttons with dark text, no white-on-white).
 - [ ] The **browser's back button** behaves sensibly: from a photo it goes to the project, not to a blank or half-loaded page.
 - [ ] On a slow connection (turn Wi-Fi off and use mobile data, or a slow area), uploading several photos shows a list under **Rooms** with a progress bar and "Uploading 40%" (and so on) for each file, and finishes without losing any.
+- [ ] **Content Security Policy** (production, iOS Safari): every page works (taps respond, photos load, the passkey prompt opens). A blank or unresponsive page means the CSP blocked a script: report it.
+- [ ] Start uploading several photos, then tap the back link before they finish: the phone asks "Photos are still uploading. Leave anyway?". Cancel keeps uploading; OK leaves, and the rest are not sent.
 - [ ] Leave the app open for a few minutes with the screen off, then wake the phone: it is still signed in and still works.
 
 ## 8. Errors and being offline
@@ -98,17 +103,6 @@ Use **airplane mode** (or switch Wi-Fi and mobile data off) to go offline, and s
 - [ ] Open an address that does not exist (for example add `/nothing` to the end of the site address): you see **"Page not found"** with a **Back to projects** link, and the header still shows.
 - [ ] Error messages at the bottom of the screen are readable, can be closed with **Dismiss**, and fit on a narrow screen without sideways scrolling.
 
-## If something fails
-
-Write down, for each failure: **which step**, **what you expected**, **what happened**, the **phone model, OS version and browser**, whether **dark mode** was on, and a **screenshot** (or a short screen recording for drag and keyboard problems). Then add it to the results table and tell whoever is maintaining the app.
-
-## Results
-
-| Date | Phone / OS | Browser | App address | Passed | Failed steps and notes |
-|---|---|---|---|---|---|
-| | | | | | |
-| | | | | | |
-
 ## 9. Add to home screen
 
 - [ ] **iPhone (Safari):** Share > **Add to Home Screen**. The icon is a blue square with a white room outline and the name is "Mehzur". Opening it shows the app full-screen with no address bar, and you are still signed in.
@@ -120,3 +114,13 @@ Write down, for each failure: **which step**, **what you expected**, **what happ
 - [ ] On a project with rooms and measurements, open the **Project menu** and tap **Export PDF**: the file downloads or opens, and shows each room with its area, each photo with its yellow measurement lines and labels drawn on, and the measurements listed under it.
 - [ ] From the **Project menu**, tap **Export CSV**: it downloads and opens in a spreadsheet app with the columns Room, Room area, Photo, Measurement, Value, Value (mm).
 
+## If something fails
+
+Write down, for each failure: **which step**, **what you expected**, **what happened**, the **phone model, OS version and browser**, whether **dark mode** was on, and a **screenshot** (or a short screen recording for drag and keyboard problems). Then add it to the results table and tell whoever is maintaining the app.
+
+## Results
+
+| Date | Phone / OS | Browser | App address | Passed | Failed steps and notes |
+|---|---|---|---|---|---|
+| | | | | | |
+| | | | | | |
