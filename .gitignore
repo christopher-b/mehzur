@@ -32,3 +32,5 @@ vite.config.ts.timestamp-*
 
 # Test coverage report
 /coverage
+# Playwright CLI output (may contain credentials)
+.playwright-cli/
