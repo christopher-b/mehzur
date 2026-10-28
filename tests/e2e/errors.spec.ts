@@ -474,6 +474,30 @@ test.describe('E8: upload progress and retry', () => {
 		await expect(page.getByRole('button', { name: /^Retry/ })).toHaveCount(0);
 	});
 
+	test('the progress stays in view when the page is scrolled down, and leaves the last content clear', async ({ page }) => {
+		await createProject(page, uniqueName('E8 overlay'));
+		for (const name of ['One', 'Two', 'Three', 'Four', 'Five', 'Six']) await addRoom(page, name);
+		let release!: () => void;
+		const gate = new Promise<void>((resolve) => (release = resolve));
+		await page.route(UPLOADS, async (route) => {
+			await gate;
+			await route.fulfill({ status: 500, body: 'boom' });
+		});
+		await addPhotos(page, 'One', await makeImage(page, 640, 480, 'slow'));
+		await expect(list(page)).toContainText('Uploading photos: 0 of 1 done');
+
+		await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+		expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+		await expect(list(page)).toBeInViewport({ ratio: 1 });
+		const overlay = (await list(page).boundingBox())!;
+		const lastTile = (await page.getByRole('button', { name: 'Room', exact: true }).boundingBox())!;
+		expect(lastTile.y + lastTile.height).toBeLessThanOrEqual(overlay.y);
+
+		release();
+		await expect(list(page)).toContainText('Failed');
+		await expect(list(page)).toContainText('0 of 1 uploaded, 1 failed');
+	});
+
 	test('an expired session stops the batch, keeps the files listed as Not uploaded and asks to sign in', async ({ page, context }) => {
 		await createProject(page, uniqueName('E8 session'));
 		await expireSession(context);

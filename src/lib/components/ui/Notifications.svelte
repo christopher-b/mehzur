@@ -40,7 +40,7 @@
 <style>
 	.notifications {
 		position: fixed;
-		inset: auto 0 0 0;
+		inset: auto 0 var(--upload-overlay-height, 0px) 0;
 		z-index: 100;
 		display: flex;
 		flex-direction: column;

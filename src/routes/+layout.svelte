@@ -135,6 +135,6 @@
 	main {
 		max-width: 64rem;
 		margin: 0 auto;
-		padding: 1rem;
+		padding: 1rem 1rem calc(1rem + var(--upload-overlay-height, 0px));
 	}
 </style>

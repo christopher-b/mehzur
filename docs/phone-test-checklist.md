@@ -43,7 +43,7 @@ Takes about 15 minutes. Use a **fresh project** so nothing old gets in the way.
 - [ ] Take a new photo. You land on that photo's page, in the Kitchen. **The photo is the right way up** (not rotated or mirrored), whichever way you held the phone.
 - [ ] Choose the **large library photo**. It uploads in a reasonable time and looks sharp when zoomed on screen.
 - [ ] Go back and add **three photos at once** from the library. You land on the first one; **Next ›** and **‹ Previous** step through them in the order you uploaded them, and the counter reads "1 of 3", "2 of 3", "3 of 3".
-- [ ] Try to upload something that is not a photo (a PDF or a document, if the phone lets you pick one). You stay on the project page and the upload list under **Rooms** shows the file's name with "Failed: This file couldn't be read as an image." and no Retry button. **Dismiss** clears the list.
+- [ ] Try to upload something that is not a photo (a PDF or a document, if the phone lets you pick one). You stay on the project page and the upload list in the panel at the bottom of the screen shows the file's name with "Failed: This file couldn't be read as an image." and no Retry button. **Dismiss** clears the list.
 - [ ] On the project page, the round **✕** on a thumbnail is easy to see and tap; it asks before deleting. Cancel it.
 
 ## 4. Measuring (the most important part)
@@ -84,7 +84,7 @@ Takes about 15 minutes. Use a **fresh project** so nothing old gets in the way.
 - [ ] **Delete** a room, a photo and a project: each asks first (the phone's own "OK / Cancel" box). Cancel keeps it, OK removes it.
 - [ ] With dark mode **on**, every screen is still fully readable (white buttons with dark text, no white-on-white).
 - [ ] The **browser's back button** behaves sensibly: from a photo it goes to the project, not to a blank or half-loaded page.
-- [ ] On a slow connection (turn Wi-Fi off and use mobile data, or a slow area), uploading several photos shows a list under **Rooms** with a progress bar and "Uploading 40%" (and so on) for each file, and finishes without losing any.
+- [ ] On a slow connection (turn Wi-Fi off and use mobile data, or a slow area), uploading several photos shows a panel at the bottom of the screen, which stays put while you scroll the page and does not hide the last room card or the **+ Room** button, with a summary and, for each file, a progress bar and "Uploading 40%" (and so on), and finishes without losing any.
 - [ ] **Content Security Policy** (production, iOS Safari): every page works (taps respond, photos load, the passkey prompt opens). A blank or unresponsive page means the CSP blocked a script: report it.
 - [ ] Start uploading several photos, then tap the back link before they finish: the phone asks "Photos are still uploading. Leave anyway?". Cancel keeps uploading; OK leaves, and the rest are not sent.
 - [ ] Leave the app open for a few minutes with the screen off, then wake the phone: it is still signed in and still works.
