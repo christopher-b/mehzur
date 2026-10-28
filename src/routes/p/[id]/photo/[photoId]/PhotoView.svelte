@@ -6,7 +6,10 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
 	import AnnotationCanvas, { type Line } from '#lib/components/AnnotationCanvas.svelte';
+	import AddTile from '#lib/components/ui/AddTile.svelte';
+	import UploadList from '../../UploadList.svelte';
 	import PopupMenu, { anyPopupOpen } from '#lib/components/ui/PopupMenu.svelte';
+	import { createPageUploads } from '#lib/client/page-uploads.svelte.ts';
 	import { postAction } from '#lib/client/actions.ts';
 	import { submitWith } from '#lib/client/enhance.ts';
 	import { saveDraft, takeDraft } from '#lib/client/drafts.ts';
@@ -27,6 +30,8 @@
 	const currentRoomName = $derived(
 		data.rooms.find((r) => r.id === data.photo.roomId)?.name ?? 'No room'
 	);
+
+	const uploads = createPageUploads(() => data.project.id);
 
 	let canvas: ReturnType<typeof AnnotationCanvas>;
 	let changingRoom = $state(false);
@@ -222,6 +227,8 @@
 	{/each}
 </svelte:head>
 
+<UploadList {uploads} />
+
 <a class="back" href="/p/{data.project.id}">← Back to {data.project.name}</a>
 
 <div class="layout">
@@ -233,6 +240,14 @@
 		<div class="room-row">
 			<span>Room: <strong>{currentRoomName}</strong></span>
 			<span class="spacer"></span>
+			<AddTile
+				mode="file"
+				accept="image/*"
+				multiple
+				text="Add photo"
+				ariaLabel="Add photos to {currentRoomName}"
+				onfiles={(files) => uploads.add(files, data.photo.roomId)}
+			/>
 			<PopupMenu label="Photo menu">
 				{#snippet children(close)}
 					<button

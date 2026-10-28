@@ -142,6 +142,48 @@ test('the arrow keys flip photos, except while typing, in a dialog, or mid-measu
 	await expect(field).toHaveValue('12');
 });
 
+test('adding photos from the photo page puts them in the same room and opens the first new one', async ({ page }) => {
+	await createProject(page, uniqueName('Add here'));
+	await addRoom(page, 'Kitchen');
+	await addAndOpenPhoto(page, 'Kitchen', 640, 480);
+	await expect(page.getByRole('navigation', { name: /Photos in/ })).toHaveCount(0);
+
+	await page.getByLabel('Add photos to Kitchen').setInputFiles(await makeImage(page, 1000, 500, 'second'));
+	await expect.poll(() => shownPhotoWidth(page)).toBe('1000');
+	await expect(page.locator('.photo-nav .nav-count')).toHaveText('2 of 2');
+	await expect(page.getByText('Room:')).toContainText('Kitchen');
+
+	// several at once: the first new photo opens, and all of them join the room
+	await page
+		.getByLabel('Add photos to Kitchen')
+		.setInputFiles([await makeImage(page, 800, 800, 'third'), await makeImage(page, 900, 600, 'fourth')]);
+	await expect.poll(() => shownPhotoWidth(page)).toBe('800');
+	await expect(page.locator('.photo-nav .nav-count')).toHaveText('3 of 4');
+});
+
+test('adding a photo from a photo that is in no room adds it to no room', async ({ page }) => {
+	const projectUrl = await createProject(page, uniqueName('Add no room'));
+	await addAndOpenPhoto(page, 'No room', 640, 480);
+	await page.getByLabel('Add photos to No room').setInputFiles(await makeImage(page, 1000, 500));
+	await expect.poll(() => shownPhotoWidth(page)).toBe('1000');
+	await expect(page.getByText('Room:')).toContainText('No room');
+
+	await visit(page, projectUrl);
+	await expect(gridPhotos(page, 'No room')).toHaveCount(2);
+});
+
+test('a file that is not an image, added from the photo page, is refused and you stay on the photo', async ({ page }) => {
+	await createProject(page, uniqueName('Add bad'));
+	await addRoom(page, 'Kitchen');
+	const photoUrl = await addAndOpenPhoto(page, 'Kitchen');
+	await page
+		.getByLabel('Add photos to Kitchen')
+		.setInputFiles({ name: 'notes.jpg', mimeType: 'image/jpeg', buffer: Buffer.from('this is not a picture') });
+	await expect(page.getByText("Failed: This file couldn't be read as an image.")).toBeVisible();
+	await expect(page).toHaveURL(photoUrl);
+	await expect(page.getByRole('button', { name: 'Dismiss upload list' })).toBeVisible();
+});
+
 test('a room with a single photo shows no Previous / Next', async ({ page }) => {
 	await createProject(page, uniqueName('Single'));
 	await addRoom(page, 'Kitchen');

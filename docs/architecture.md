@@ -22,7 +22,8 @@ src/lib/client/             Browser helpers:
                               the "Signed out" prompt; notify.svelte.ts: notifications; online.svelte.ts: online state;
                               drafts.ts: text kept across sign-in; collapsed.svelte.ts: remembered collapsed cards;
                               passkeys.ts: WebAuthn calls; upload.ts, upload-state.ts and uploads.svelte.ts: preparing and
-                              sending photos, and the queue with per-file state
+                              sending photos, and the queue with per-file state; page-uploads.svelte.ts: a queue for a
+                              page (project page, photo page) that opens the first new photo and asks before leaving mid-upload
 src/lib/components/         AnnotationCanvas.svelte (draws and edits lines on a photo); ProjectMenu (the project menu button, on the
                             project page and the project list) with its ProjectEditDialog and ProjectShareDialog; ProjectForm
 src/lib/components/ui/      Shared building blocks: Dialog, Modal, PopupMenu, AddTile, FormError, PasswordPair, HamburgerIcon, Notifications, SessionExpired

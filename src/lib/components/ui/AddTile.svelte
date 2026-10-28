@@ -8,6 +8,8 @@
 		accept: string;
 		multiple?: boolean;
 		ariaLabel: string;
+		/** Shows a compact button with this text instead of the big "+" tile. */
+		text?: string;
 		onfiles: (files: FileList) => unknown;
 	};
 	type ButtonProps = { mode: 'button'; children: Snippet } & HTMLButtonAttributes;
@@ -24,8 +26,12 @@
 {#if props.mode === 'file'}
 	{@const file = props}
 	<!-- No `capture` attribute: phones then offer "Take Photo" alongside the photo library. -->
-	<label class="tile file">
-		<span class="plus" aria-hidden="true"><Plus size={48} strokeWidth={1.5} /></span>
+	<label class="tile file" class:compact={file.text}>
+		{#if file.text}
+			<Plus size={18} aria-hidden="true" />{file.text}
+		{:else}
+			<span class="plus" aria-hidden="true"><Plus size={48} strokeWidth={1.5} /></span>
+		{/if}
 		<input
 			type="file"
 			accept={file.accept}
@@ -74,6 +80,15 @@
 	}
 	.plus {
 		display: grid;
+	}
+	/* The same dashed look as the tile, sized like a button, for a shortcut beside other controls. */
+	.compact {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		height: auto;
+		padding: 0.45rem 0.9rem;
+		border-radius: var(--radius-sm);
 	}
 	.action {
 		display: inline-flex;

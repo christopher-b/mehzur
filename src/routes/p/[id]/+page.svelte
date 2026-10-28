@@ -2,10 +2,9 @@
 	import Plus from '@lucide/svelte/icons/plus';
 	import FormError from '#lib/components/ui/FormError.svelte';
 	import AddTile from '#lib/components/ui/AddTile.svelte';
-	import { beforeNavigate, goto, invalidateAll } from '$app/navigation';
-	import { onDestroy, onMount } from 'svelte';
+	import { onMount } from 'svelte';
 	import { CollapsedState } from '#lib/client/collapsed.svelte.ts';
-	import { UploadQueue } from '#lib/client/uploads.svelte.ts';
+	import { createPageUploads } from '#lib/client/page-uploads.svelte.ts';
 	import { formatValue, measurementName } from '#lib/measurements.ts';
 	import { formatArea } from '#lib/units.ts';
 	import UploadList from './UploadList.svelte';
@@ -40,30 +39,7 @@
 	const annotationsByRoom = $derived(groupByRoom(data.annotations));
 	const unassignedPhotos = $derived(photosByRoom.get(null) ?? []);
 
-	// Go straight to the first new photo to start measuring, but only when every file made it;
-	// otherwise stay here so the list of failures stays visible.
-	const uploads = new UploadQueue(
-		() => data.project.id,
-		async (items) => {
-			if (items.some((i) => i.status === 'uploaded')) {
-				try {
-					await invalidateAll();
-				} catch {
-					// Offline right after uploading: the list below still shows what happened.
-					return;
-				}
-			}
-			if (items.length && items.every((i) => i.status === 'uploaded')) {
-				await goto(`/p/${data.project.id}/photo/${items[0].photoId}`);
-			}
-		}
-	);
-	onDestroy(() => uploads.destroy());
-	beforeNavigate(({ cancel, willUnload }) => {
-		if (!uploads.busy) return;
-		// Closing the tab or reloading gets the browser's own prompt; in-app links get ours.
-		if (willUnload || !confirm('Photos are still uploading. Leave anyway?')) cancel();
-	});
+	const uploads = createPageUploads(() => data.project.id);
 	const uploadFiles = (files: FileList, roomId: string | null) => uploads.add(files, roomId);
 </script>
 
