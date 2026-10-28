@@ -175,6 +175,21 @@ export async function tapAt(page: Page, fx: number, fy: number) {
 	else await page.mouse.click(x, y);
 }
 
+export const zoomButton = (page: Page, name: 'Zoom in' | 'Zoom out' | 'Fit photo') =>
+	page.getByRole('button', { name, exact: true });
+
+/** The x1, y1, x2, y2 of the first measurement line, as fractions of the image. */
+export async function firstLine(page: Page) {
+	return page.evaluate(() => {
+		const line = document.querySelector('.annotation line.stroke')!;
+		const img = document.querySelector('.canvas img')!;
+		const width = Number(img.getAttribute('width'));
+		const height = Number(img.getAttribute('height'));
+		const n = (name: string) => Number(line.getAttribute(name));
+		return { x1: n('x1') / width, y1: n('y1') / height, x2: n('x2') / width, y2: n('y2') / height };
+	});
+}
+
 export const measurementDialog = (page: Page) => page.getByRole('dialog', { name: /measurement/ });
 export const measurementField = (page: Page) => measurementDialog(page).getByLabel(/^Measurement/);
 

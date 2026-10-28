@@ -56,7 +56,12 @@ Takes about 15 minutes. Use a **fresh project** so nothing old gets in the way.
 - [ ] The line and its label appear on the photo, and the label is **readable on a bright photo and on a dark one**. The measurement appears in the list below.
 - [ ] Type nonsense (for example `abc`): "Not recognised" shows and Save refuses it.
 - [ ] With a measurement selected, tap an empty part of the photo: the selection clears **and** the first point of a new measurement is placed (a red ring), so two taps in total draw the next line. Tapping the selected line again keeps it selected.
-- [ ] **Drag an end point.** Tap the line to select it (it turns blue with two round handles). Drag a handle with your finger. **The page must not scroll while you drag**, the end point follows your finger, and it is still there after you reload. Scrolling the page from outside the photo still works. Pinch-zooming the page still works.
+- [ ] **Drag an end point.** Tap the line to select it (it turns blue with two round handles). Drag a handle with your finger. **The page must not scroll while you drag**, the end point follows your finger, and it is still there after you reload. Scrolling the page from outside the photo still works.
+- [ ] **Pinch on the photo** zooms the photo, not the page; the header and the measurement list stay the same size. Moving both fingers pans. Lifting the fingers does not place a point.
+- [ ] **When zoomed**, one finger dragging on the photo pans it, and a tap still places a point. Markers, labels and handles look the same size as at 1×.
+- [ ] **At 1×**, a one-finger swipe up or down on the photo still scrolls the page.
+- [ ] Zoom in (pinch or the + button), drag a handle a short way, then tap **Fit**: the end point moved by the small amount you dragged.
+- [ ] Pinching **outside the photo** still zooms the whole page (an accessibility feature that must keep working).
 - [ ] **Keyboard handles** (iPad or a phone with a Bluetooth keyboard, or desktop Safari): select a measurement, Tab to "Start of …", and press the arrow keys. The end point moves in small steps (Shift: larger), and it is still there after a reload.
 - [ ] In a **metric** project: a bare `3.25` becomes `3.25 m`, and the keys under the field are **m, cm, mm**.
 - [ ] Tap two points but change your mind: tap **Cancel** next to the hint above the photo; the half-placed point disappears and nothing is left behind.

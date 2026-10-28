@@ -183,6 +183,14 @@
 			}
 			return;
 		}
+		if ((e.key === '+' || e.key === '=' || e.key === '-' || e.key === '0') && !(e.altKey || e.ctrlKey || e.metaKey)) {
+			if (modalOpen || (e.target as HTMLElement).closest(TEXT_FIELD)) return;
+			e.preventDefault();
+			if (e.key === '-') canvas.zoomOut();
+			else if (e.key === '0') canvas.fit();
+			else canvas.zoomIn();
+			return;
+		}
 		if (modalOpen || !selectedId) return;
 		const target = e.target as HTMLElement;
 		if (target.closest(TEXT_FIELD)) return;

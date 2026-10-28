@@ -18,6 +18,11 @@
 </script>
 
 <script lang="ts">
+	import Maximize from '@lucide/svelte/icons/maximize';
+	import ZoomIn from '@lucide/svelte/icons/zoom-in';
+	import ZoomOut from '@lucide/svelte/icons/zoom-out';
+	import { FIT, MAX_SCALE, MIN_SCALE, ZOOM_STEP, panBy, toImage, zoomAt, type View } from '#lib/zoom.ts';
+
 	interface Props {
 		src: string;
 		alt: string;
@@ -62,18 +67,31 @@
 	};
 
 	let svg: SVGSVGElement;
+	let canvasEl: HTMLDivElement;
 	let displayWidth = $state(0);
 	let pointA = $state<Point | null>(null);
 	let hover = $state<Point | null>(null);
 	let drag = $state<{ id: string; end: 1 | 2; line: Line } | null>(null);
 	let suppressClick = false;
+	let view = $state<View>(FIT);
+	/** Pointers down on the photo (not on a handle), by pointer id, in client coordinates. */
+	const pointers = new Map<number, { x: number; y: number }>();
+	/** What the current gesture started from. */
+	let gesture: {
+		kind: 'tap' | 'pan' | 'pinch';
+		startView: View;
+		startX: number;
+		startY: number;
+		startDistance: number;
+	} | null = null;
+	const TAP_SLOP = 8; // CSS pixels a finger may move and still count as a tap
 	/** A line being moved with the arrow keys; saved once the keys have been still for `NUDGE_SAVE_MS`. */
 	let nudged = $state<{ id: string; line: Line } | null>(null);
 	let nudgeTimer: ReturnType<typeof setTimeout> | undefined;
 	$effect(() => () => clearTimeout(nudgeTimer));
 
 	/** Image pixels per CSS pixel, so markers and text keep a constant on-screen size. */
-	const k = $derived(displayWidth ? width / displayWidth : 1);
+	const k = $derived(displayWidth ? width / (displayWidth * view.scale) : 1);
 
 	function setPointA(p: Point | null) {
 		pointA = p;
@@ -85,19 +103,19 @@
 		hover = null;
 	}
 
+	export const zoomIn = () => (view = zoomAt(view, ZOOM_STEP));
+	export const zoomOut = () => (view = zoomAt(view, 1 / ZOOM_STEP));
+	export const fit = () => (view = FIT);
+
 	function toPoint(e: PointerEvent | MouseEvent): Point {
 		const rect = svg.getBoundingClientRect();
-		const clamp = (n: number) => Math.min(1, Math.max(0, n));
-		return {
-			x: clamp((e.clientX - rect.left) / rect.width),
-			y: clamp((e.clientY - rect.top) / rect.height)
-		};
+		return toImage(view, (e.clientX - rect.left) / rect.width, (e.clientY - rect.top) / rect.height);
 	}
 
 	/** Distance in CSS pixels between two normalized points. */
 	function screenDistance(a: Point, b: Point) {
 		const rect = svg.getBoundingClientRect();
-		return Math.hypot((a.x - b.x) * rect.width, (a.y - b.y) * rect.height);
+		return Math.hypot((a.x - b.x) * rect.width * view.scale, (a.y - b.y) * rect.height * view.scale);
 	}
 
 	function onBackgroundClick(e: MouseEvent) {
@@ -119,14 +137,100 @@
 		hover = null;
 	}
 
+	function pinchState() {
+		const [a, b] = [...pointers.values()];
+		return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2, distance: Math.hypot(a.x - b.x, a.y - b.y) };
+	}
+
+	function onPointerDown(e: PointerEvent) {
+		if (!interactive || drag || e.button !== 0 || pointers.size >= 2) return;
+		pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+		if (pointers.size === 1) {
+			gesture = { kind: 'tap', startView: view, startX: e.clientX, startY: e.clientY, startDistance: 0 };
+		} else {
+			const { x, y, distance } = pinchState();
+			gesture = { kind: 'pinch', startView: view, startX: x, startY: y, startDistance: distance };
+			suppressClick = true;
+		}
+	}
+
 	function onPointerMove(e: PointerEvent) {
 		if (drag) {
 			const p = toPoint(e);
 			drag.line = drag.end === 1 ? { ...drag.line, x1: p.x, y1: p.y } : { ...drag.line, x2: p.x, y2: p.y };
-		} else if (pointA && e.pointerType === 'mouse') {
+			return;
+		}
+		if (gesture && pointers.has(e.pointerId)) {
+			pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+			const rect = svg.getBoundingClientRect();
+			if (gesture.kind === 'tap') {
+				const moved = Math.hypot(e.clientX - gesture.startX, e.clientY - gesture.startY);
+				// Capturing is safe now: this will not be a tap. At 1x there is nothing to pan.
+				if (moved > TAP_SLOP && view.scale > 1) {
+					gesture.kind = 'pan';
+					svg.setPointerCapture(e.pointerId);
+				}
+			}
+			if (gesture.kind === 'pan') {
+				view = panBy(gesture.startView, (e.clientX - gesture.startX) / rect.width, (e.clientY - gesture.startY) / rect.height);
+			} else if (gesture.kind === 'pinch' && pointers.size === 2) {
+				const { x, y, distance } = pinchState();
+				const startFx = (gesture.startX - rect.left) / rect.width;
+				const startFy = (gesture.startY - rect.top) / rect.height;
+				view = panBy(
+					zoomAt(gesture.startView, distance / Math.max(gesture.startDistance, 1), startFx, startFy),
+					(x - gesture.startX) / rect.width,
+					(y - gesture.startY) / rect.height
+				);
+			}
+		}
+		if (pointA && e.pointerType === 'mouse') {
 			hover = toPoint(e);
 		}
 	}
+
+	function releasePointer(e: PointerEvent) {
+		if (!pointers.delete(e.pointerId)) return;
+		if (gesture && gesture.kind !== 'tap') {
+			// The click that follows a pan or pinch must not place a point.
+			suppressClick = true;
+			setTimeout(() => (suppressClick = false), 0);
+		}
+		if (gesture?.kind === 'pinch' || pointers.size === 0) gesture = null;
+	}
+
+	function onPointerUp(e: PointerEvent) {
+		endDrag();
+		releasePointer(e);
+	}
+
+	function onPointerCancel(e: PointerEvent) {
+		cancelDrag();
+		releasePointer(e);
+	}
+
+	function onWheel(e: WheelEvent) {
+		if (!e.ctrlKey || !interactive) return; // a plain wheel scrolls the page
+		e.preventDefault();
+		const rect = svg.getBoundingClientRect();
+		view = zoomAt(view, Math.exp(-e.deltaY * 0.01), (e.clientX - rect.left) / rect.width, (e.clientY - rect.top) / rect.height);
+	}
+
+	// Trackpad pinches arrive as wheel events with ctrlKey set. Svelte's `onwheel` may be passive, so these are added by hand.
+	$effect(() => {
+		svg.addEventListener('wheel', onWheel, { passive: false });
+		return () => svg.removeEventListener('wheel', onWheel);
+	});
+
+	// iOS Safari zooms the page on a pinch whatever touch-action says; pointer events still arrive.
+	$effect(() => {
+		const stop = (e: Event) => e.preventDefault();
+		const events = ['gesturestart', 'gesturechange', 'gestureend'];
+		for (const name of events) canvasEl.addEventListener(name, stop, { passive: false });
+		return () => {
+			for (const name of events) canvasEl.removeEventListener(name, stop);
+		};
+	});
 
 	function startDrag(e: PointerEvent, a: CanvasAnnotation, end: 1 | 2) {
 		if (!interactive) return;
@@ -160,7 +264,7 @@
 		const direction = NUDGE_DIRECTIONS[e.key];
 		if (!direction || e.altKey || e.ctrlKey || e.metaKey || !interactive) return;
 		e.preventDefault();
-		const step = e.shiftKey ? NUDGE_STEP_LARGE : NUDGE_STEP;
+		const step = (e.shiftKey ? NUDGE_STEP_LARGE : NUDGE_STEP) / view.scale;
 		const clamp = (n: number) => Math.min(1, Math.max(0, n));
 		const [dx, dy] = direction;
 		const line: Line =
@@ -207,18 +311,26 @@
 
 <svelte:window onkeydown={onKeydown} />
 
-<div class="canvas" bind:clientWidth={displayWidth}>
-	<img {src} {alt} {width} {height} draggable="false" />
+<div class="canvas" class:zoomed={view.scale > 1} bind:this={canvasEl} bind:clientWidth={displayWidth}>
+	<img
+		{src}
+		{alt}
+		{width}
+		{height}
+		draggable="false"
+		style:transform="scale({view.scale}) translate({-view.x * 100}%, {-view.y * 100}%)"
+	/>
 	<svg
 		bind:this={svg}
-		viewBox="0 0 {width} {height}"
+		viewBox="{view.x * width} {view.y * height} {width / view.scale} {height / view.scale}"
 		preserveAspectRatio="none"
 		role="group"
 		aria-label="Photo annotations"
+		onpointerdown={onPointerDown}
 		onpointermove={onPointerMove}
-		onpointerup={endDrag}
-		onpointercancel={cancelDrag}
-		class:editing={selectedId !== null && interactive}
+		onpointerup={onPointerUp}
+		onpointercancel={onPointerCancel}
+		class:no-touch-scroll={view.scale > 1 || (selectedId !== null && interactive)}
 	>
 		<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
 		<rect class="background" {width} {height} onclick={onBackgroundClick} />
@@ -286,6 +398,19 @@
 	</svg>
 </div>
 
+<div class="zoom-bar">
+	<button type="button" class="icon-button" aria-label="Zoom out" disabled={view.scale <= MIN_SCALE} onclick={zoomOut}>
+		<ZoomOut size={18} aria-hidden="true" />
+	</button>
+	<span class="zoom-level" aria-live="polite">{Math.round(view.scale * 10) / 10}×</span>
+	<button type="button" class="icon-button" aria-label="Zoom in" disabled={view.scale >= MAX_SCALE} onclick={zoomIn}>
+		<ZoomIn size={18} aria-hidden="true" />
+	</button>
+	<button type="button" aria-label="Fit photo" disabled={view.scale === 1} onclick={fit}>
+		<Maximize size={16} aria-hidden="true" />Fit
+	</button>
+</div>
+
 <style>
 	.canvas {
 		position: relative;
@@ -298,6 +423,30 @@
 		width: 100%;
 		height: auto;
 		border-radius: var(--radius-md);
+		transform-origin: 0 0;
+	}
+	.canvas.zoomed {
+		overflow: hidden;
+		border-radius: var(--radius-md);
+	}
+	.zoom-bar {
+		display: flex;
+		justify-content: flex-end;
+		align-items: center;
+		gap: 0.4rem;
+		margin-top: 0.5rem;
+	}
+	.zoom-bar button {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
+	}
+	.zoom-bar .icon-button {
+		display: grid;
+	}
+	.zoom-level {
+		min-width: 2.5rem;
+		text-align: center;
 	}
 	svg {
 		position: absolute;
@@ -306,10 +455,15 @@
 		height: 100%;
 		overflow: visible;
 	}
-	/* Browsers ignore touch-action on SVG shapes, so block panning on the whole overlay while
-	   handles are visible; otherwise a touch drag becomes a scroll and gets cancelled. */
-	svg.editing {
-		touch-action: pinch-zoom;
+	/* Browsers ignore touch-action on SVG shapes, so it is set on the whole overlay. A swipe on the
+	   photo scrolls the page, but a pinch reaches the pointer handlers. While zoomed, or while
+	   handles are visible, nothing scrolls: a one-finger drag pans or moves a handle instead,
+	   and would otherwise become a scroll and get cancelled. */
+	svg {
+		touch-action: pan-y;
+	}
+	svg.no-touch-scroll {
+		touch-action: none;
 	}
 	.background {
 		fill: transparent;

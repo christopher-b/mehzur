@@ -4,7 +4,7 @@ Photograph a room, tap two points on a photo to draw a line, and type the real-w
 
 - **Projects** (one per house), each with its own units: ft/in or m/cm.
 - **Photos**: take one with the phone camera or upload from the library; they are resized in the browser before upload.
-- **Measurements**: tap two points, enter a length (`12' 6"`, `3.2m`, `320cm`), name it or let it be named after its room and photo ("Kitchen 1-A"). Drag the end points to adjust, or move them with the arrow keys.
+- **Measurements**: tap two points, enter a length (`12' 6"`, `3.2m`, `320cm`), name it or let it be named after its room and photo ("Kitchen 1-A"). Zoom in for precise placement. Drag the end points to adjust, or move them with the arrow keys.
 - **Rooms**: every photo is in one room or in "No room". A room's area is length × width from two of its measurements.
 - **Export** a project as CSV or as a PDF with the annotated photos. **Add to home screen** on a phone.
 - **Accounts**: sign in with an email and password. The administrator invites people by link; each person sees only their own projects. Passwords can be reset by email. Online only (no offline mode).
