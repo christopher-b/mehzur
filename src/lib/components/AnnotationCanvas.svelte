@@ -354,10 +354,38 @@
 				<line class="stroke" x1={px(a.x1)} y1={py(a.y1)} x2={px(a.x2)} y2={py(a.y2)} />
 				<circle class="end" cx={px(a.x1)} cy={py(a.y1)} r={3.5 * k} />
 				<circle class="end" cx={px(a.x2)} cy={py(a.y2)} r={3.5 * k} />
-				<text transform={labelTransform(a)} y={-8 * k} font-size={15 * k} stroke-width={4 * k}>
-					{a.label}
-				</text>
 			</g>
+		{/each}
+
+		{#if draft}
+			<g class="draft">
+				<line class="stroke" x1={px(draft.x1)} y1={py(draft.y1)} x2={px(draft.x2)} y2={py(draft.y2)} />
+				<circle class="end" cx={px(draft.x1)} cy={py(draft.y1)} r={3.5 * k} />
+				<circle class="end" cx={px(draft.x2)} cy={py(draft.y2)} r={3.5 * k} />
+			</g>
+		{/if}
+
+		{#if pointA}
+			<g class="draft">
+				{#if hover}
+					<line class="stroke dashed" x1={px(pointA.x)} y1={py(pointA.y)} x2={px(hover.x)} y2={py(hover.y)} />
+				{/if}
+				<circle class="pending" cx={px(pointA.x)} cy={py(pointA.y)} r={6 * k} stroke-width={2 * k} />
+			</g>
+		{/if}
+
+		<!-- Labels are drawn after every line, so a later line never covers an earlier label. -->
+		{#each lines as a (a.id)}
+			<text
+				class="label"
+				class:selected={a.id === selectedId}
+				transform={labelTransform(a)}
+				y={-8 * k}
+				font-size={15 * k}
+				stroke-width={4 * k}
+			>
+				{a.label}
+			</text>
 		{/each}
 
 		{#if selected && interactive && !pointA}
@@ -377,23 +405,6 @@
 					<circle class="dot" {cx} {cy} r={11 * k} />
 				</g>
 			{/each}
-		{/if}
-
-		{#if draft}
-			<g class="draft">
-				<line class="stroke" x1={px(draft.x1)} y1={py(draft.y1)} x2={px(draft.x2)} y2={py(draft.y2)} />
-				<circle class="end" cx={px(draft.x1)} cy={py(draft.y1)} r={3.5 * k} />
-				<circle class="end" cx={px(draft.x2)} cy={py(draft.y2)} r={3.5 * k} />
-			</g>
-		{/if}
-
-		{#if pointA}
-			<g class="draft">
-				{#if hover}
-					<line class="stroke dashed" x1={px(pointA.x)} y1={py(pointA.y)} x2={px(hover.x)} y2={py(hover.y)} />
-				{/if}
-				<circle class="pending" cx={px(pointA.x)} cy={py(pointA.y)} r={6 * k} stroke-width={2 * k} />
-			</g>
 		{/if}
 	</svg>
 </div>
@@ -492,7 +503,7 @@
 		fill: #ffd60a;
 		pointer-events: none;
 	}
-	text {
+	.label {
 		fill: #111;
 		stroke: #ffd60a;
 		paint-order: stroke;
@@ -508,7 +519,7 @@
 	.selected .end {
 		fill: var(--accent);
 	}
-	.selected text {
+	.label.selected {
 		fill: white;
 		stroke: var(--accent);
 	}

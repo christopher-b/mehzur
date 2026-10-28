@@ -79,7 +79,7 @@ test('drawing a measurement: number pad, helper keys, preview, optional name, sa
 	await nameField.fill('Kitchen length');
 	await dialog.getByRole('button', { name: 'Save' }).click();
 	await expect(dialog).toBeHidden();
-	await expect(page.locator('.annotation text')).toHaveText(`Kitchen length: 12' 6 1/2"`);
+	await expect(page.locator('text.label')).toHaveText(`Kitchen length: 12' 6 1/2"`);
 	await expect(aside(page).getByRole('listitem')).toContainText(['Kitchen length']);
 	await expect(aside(page).getByRole('listitem')).toContainText([`12' 6 1/2"`]);
 	await expect(page.locator('.annotation.selected')).toHaveCount(1);
@@ -110,7 +110,7 @@ test('an unreadable value is flagged and not saved; a name alone is fine', async
 	await startMeasurement(page);
 	await measurementDialog(page).getByLabel(/^Name/).fill('Later');
 	await measurementDialog(page).getByRole('button', { name: 'Save' }).click();
-	await expect(page.locator('.annotation text')).toHaveText('Later: ?');
+	await expect(page.locator('text.label')).toHaveText('Later: ?');
 });
 
 test('edit a measurement from the list, then delete it (cancel first)', async ({ page, confirmations }) => {
@@ -128,7 +128,7 @@ test('edit a measurement from the list, then delete it (cancel first)', async ({
 	await expect(measurementField(page)).toHaveValue(`12'`);
 	await measurementField(page).fill('150in');
 	await dialog.getByRole('button', { name: 'Save' }).click();
-	await expect(page.locator('.annotation text')).toHaveText(`Wall: 12' 6"`);
+	await expect(page.locator('text.label')).toHaveText(`Wall: 12' 6"`);
 
 	confirmations.answer = false;
 	await aside(page).getByRole('button', { name: 'Delete' }).click();
@@ -259,7 +259,7 @@ test('a metric project reads a bare number as metres and offers metric unit keys
 	await addAndOpenPhoto(page, 'Kitchen');
 
 	await drawMeasurement(page, '3.25');
-	await expect(page.locator('.annotation text')).toHaveText('Kitchen 1-A: 3.25 m');
+	await expect(page.locator('text.label')).toHaveText('Kitchen 1-A: 3.25 m');
 
 	await startMeasurement(page, 0.6);
 	const dialog = measurementDialog(page);
@@ -373,7 +373,7 @@ test('measurements are listed on the project page, filterable by room, and open 
 	await rows.filter({ hasText: 'Closet' }).click();
 	await expect(page).toHaveURL(/\/photo\//);
 	await waitForPhoto(page);
-	await expect(page.locator('.annotation.selected text')).toHaveText(`Closet: 8'`);
+	await expect(page.locator('text.label.selected')).toHaveText(`Closet: 8'`);
 });
 
 test('Enter on a photo-menu item opens its action, not the measurement editor', async ({ page }) => {
@@ -405,4 +405,32 @@ test('Enter on a focused list button only presses that button', async ({ page, c
 	await page.keyboard.press('Enter');
 	await expect(page.locator('.annotation')).toHaveCount(0);
 	await expect(page.getByRole('heading', { name: 'Edit measurement' })).toHaveCount(0);
+});
+
+test('labels are drawn above every line, and the handles above the labels', async ({ page }) => {
+	await createProject(page, uniqueName('Label order'));
+	await addRoom(page, 'Kitchen');
+	await addAndOpenPhoto(page, 'Kitchen');
+	await drawMeasurement(page, `12'`, { y: 0.3 }); // its label sits at x 0.45, y 0.3
+
+	// a second line crossing the first one's label, drawn later
+	await tapAt(page, 0.45, 0.1);
+	await tapAt(page, 0.45, 0.6);
+	await measurementField(page).fill(`8'`);
+	await measurementDialog(page).getByRole('button', { name: 'Save' }).click();
+	await expect(measurementDialog(page)).toBeHidden();
+	await expect(page.locator('.annotation')).toHaveCount(2);
+	await expect(page.locator('text.label')).toHaveCount(2);
+
+	const order = await page.evaluate(() => {
+		const follows = (a: Element, b: Element) => !!(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
+		const lines = [...document.querySelectorAll('.annotation')];
+		const labels = [...document.querySelectorAll('text.label')];
+		const handles = [...document.querySelectorAll('.handle')];
+		return {
+			labelsAfterLines: lines.every((line) => labels.every((label) => follows(line, label))),
+			handlesAfterLabels: handles.length === 2 && handles.every((handle) => labels.every((label) => follows(label, handle)))
+		};
+	});
+	expect(order).toEqual({ labelsAfterLines: true, handlesAfterLabels: true });
 });

@@ -80,7 +80,7 @@ test('placing a measurement while zoomed is precise', async ({ page }) => {
 test('markers and labels keep their on-screen size when zoomed', async ({ page }) => {
 	await openPhoto(page);
 	await drawCentralMeasurement(page);
-	const label = page.locator('.annotation text');
+	const label = page.locator('text.label');
 	const before = (await label.boundingBox())!;
 	await zoomButton(page, 'Zoom in').click();
 	await zoomButton(page, 'Zoom in').click();
