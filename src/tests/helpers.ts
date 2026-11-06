@@ -1,4 +1,5 @@
 import Database from 'better-sqlite3';
+import sharp from 'sharp';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
 import * as schema from '#lib/server/db/schema.ts';
@@ -158,5 +159,23 @@ const MAGIC: Record<string, number[]> = {
 export function imageFile(type = 'image/jpeg', size = 16): File {
 	const bytes = new Uint8Array(size).fill(7);
 	bytes.set((MAGIC[type] ?? []).slice(0, size));
+	return new File([bytes], 'photo', { type });
+}
+
+const realImages: Record<string, Uint8Array> = {};
+for (const [type, format] of [['image/jpeg', 'jpeg'], ['image/png', 'png'], ['image/webp', 'webp']] as const) {
+	const base = sharp({ create: { width: 64, height: 48, channels: 3, background: '#c33' } });
+	realImages[type] = new Uint8Array(await base.toFormat(format).toBuffer());
+}
+
+/**
+ * A file that decodes as a real image (the upload endpoint makes a thumbnail from it). With `size`, trailing
+ * zero bytes pad it to at least that many bytes (decoders ignore them); 0 gives an empty file.
+ */
+export function realImageFile(type = 'image/jpeg', size?: number): File {
+	const image = realImages[type] ?? realImages['image/jpeg'];
+	if (size === 0) return new File([], 'photo', { type });
+	const bytes = new Uint8Array(Math.max(size ?? 0, image.length));
+	bytes.set(image);
 	return new File([bytes], 'photo', { type });
 }

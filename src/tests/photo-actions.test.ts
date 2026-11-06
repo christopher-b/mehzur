@@ -275,6 +275,8 @@ describe('photo actions: deletePhoto', () => {
 	it('deletes the photo, its measurements and its file, then redirects to the project', async () => {
 		const s = await setup();
 		await s.storage.put(s.photo.blobKey, new Uint8Array([1, 2]), 'image/jpeg');
+		await s.db.update(photos).set({ thumbKey: 'thumb-of-photo.jpg' }).where(eq(photos.id, s.photo.id));
+		await s.storage.put('thumb-of-photo.jpg', new Uint8Array([3]), 'image/jpeg');
 		await seedAnnotation(s.db, s.photo.id);
 
 		await expect(run('deletePhoto', s)).rejects.toMatchObject({
@@ -285,6 +287,7 @@ describe('photo actions: deletePhoto', () => {
 		expect(await s.db.select().from(photos)).toHaveLength(0);
 		expect(await all(s)).toHaveLength(0);
 		expect(s.blobs.has(s.photo.blobKey)).toBe(false);
+		expect(s.blobs.has('thumb-of-photo.jpg')).toBe(false);
 	});
 
 	it('404s for a photo in another project and deletes nothing', async () => {

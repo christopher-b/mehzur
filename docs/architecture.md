@@ -29,6 +29,7 @@ src/lib/components/         AnnotationCanvas.svelte (draws and edits lines on a 
 src/lib/components/ui/      Shared building blocks: Dialog, Modal, PopupMenu, AddTile, FormError, PasswordPair, HamburgerIcon, Notifications, SessionExpired
 src/lib/server/db/          Drizzle schema and the SQLite client
 src/lib/server/storage/     Photo storage on the filesystem
+src/lib/server/thumbnails.ts  Makes the 400px JPEG thumbnail (sharp) that the photo grid shows; the upload endpoint stores it under `<photo key>.thumb.jpg` and records `photo.thumb_key` (null for photos from before thumbnails: the grid then shows the full image)
 src/lib/server/             Database and storage setup (platform.ts), then by subject:
                               forms.ts and messages.ts (form parsing and validation texts), projects.ts (access: getProjectOr404,
                               roles), rooms.ts (room rules and areas), photos.ts (photo order and rules), annotations.ts (measurement
@@ -41,6 +42,7 @@ src/routes/                 Pages and endpoints; each page's own components sit 
                             follow docs/contributing.md#naming-components
 drizzle/                    SQL migrations, applied by the server on startup
 docker/server.js            Docker entry point
+docker/backfill-thumbs.js   One-off script that makes thumbnails for photos that have none (see docs/deployment.md)
 src/tests/                  Route and database tests (unit tests sit next to the code)
 tests/e2e/                  Playwright browser tests; playwright.config.ts at the root
 docs/                       Deployment, testing, endpoints, decisions, contributing, phone checklist

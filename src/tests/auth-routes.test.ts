@@ -5,7 +5,8 @@ vi.mock('$app/env/private', () => ({ APP_PASSWORD: 'open-sesame', SESSION_SECRET
 const { actions, load } = await import('../routes/login/+page.server.ts');
 const { POST: logout } = await import('../routes/logout/+server.ts');
 const { GET: servePhoto } = await import('../routes/api/photos/[...key]/+server.ts');
-const { projectMembers, projects } = await import('#lib/server/db/schema.ts');
+const { photos: photosTable, projectMembers, projects } = await import('#lib/server/db/schema.ts');
+const { eq } = await import('drizzle-orm');
 const { SESSION_COOKIE } = await import('#lib/server/auth.ts');
 const { findSession, createSession } = await import('#lib/server/sessions.ts');
 const { createUser, LOGIN_LIMIT_PER_EMAIL } = await import('#lib/server/users.ts');
@@ -175,6 +176,17 @@ describe('GET /api/photos/[...key]', () => {
 		expect(res.headers.get('cache-control')).toContain('private');
 		expect(res.headers.get('cache-control')).toContain('immutable');
 		expect(Array.from(new Uint8Array(await res.arrayBuffer()))).toEqual([1, 2, 3]);
+	});
+
+	it('serves the thumbnail to the owner and 404s it for anyone else', async () => {
+		const [photo] = await ctx.db.select().from(photosTable);
+		await ctx.db.update(photosTable).set({ thumbKey: 'projects/p1/a.thumb.jpg' }).where(eq(photosTable.id, photo.id));
+		await ctx.storage.put('projects/p1/a.thumb.jpg', new Uint8Array([4, 5]), 'image/jpeg');
+		expect((await get('projects/p1/a.thumb.jpg')).status).toBe(200);
+
+		const other = await seedUser(ctx.db);
+		const theirs = asUser(ctx, { id: other.id, email: other.email, name: other.name, role: 'member' });
+		await expect(get('projects/p1/a.thumb.jpg', theirs.locals)).rejects.toMatchObject({ status: 404 });
 	});
 
 	it("404s for another user's photo, even though the file exists", async () => {

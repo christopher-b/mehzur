@@ -32,6 +32,7 @@ COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/build ./build
 COPY --from=build /app/drizzle ./drizzle
 COPY docker/server.js ./server.js
+COPY docker/backfill-thumbs.js ./backfill-thumbs.js
 
 # The SQLite database and photos live here; mount a volume over it.
 RUN mkdir -p /data && chown -R node:node /data

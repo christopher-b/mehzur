@@ -146,6 +146,12 @@ docker compose up -d
 git pull && docker compose up -d --build
 ```
 
+**Thumbnails for older photos.** The photo grid shows a small thumbnail made when a photo is uploaded. Photos uploaded before thumbnails existed keep showing the full image until you run this once after updating (it is safe to run again; it only handles photos with no thumbnail):
+
+```sh
+docker compose exec mehzur node backfill-thumbs.js
+```
+
 The volume is named `mehzur_mehzur-data` (the compose file sets the project name to `mehzur`); run `docker volume ls` to check. Logs: `docker compose logs -f`.
 
 ## Troubleshooting: error ids and logs

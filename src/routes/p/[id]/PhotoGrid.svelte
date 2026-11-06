@@ -27,11 +27,12 @@
 		<li>
 			<a href="/p/{projectId}/photo/{photo.id}">
 				<img
-					src="/api/photos/{photo.blobKey}"
+					src="/api/photos/{photo.thumbKey ?? photo.blobKey}"
 					alt="Photo {photoNumbers.get(photo.id)}"
 					width={photo.width}
 					height={photo.height}
 					loading="lazy"
+					decoding="async"
 				/>
 			</a>
 			<form

@@ -93,9 +93,10 @@ export async function deletePhoto(
 	const [photo] = await db
 		.delete(photos)
 		.where(and(eq(photos.id, photoId), eq(photos.projectId, projectId)))
-		.returning({ blobKey: photos.blobKey });
+		.returning({ blobKey: photos.blobKey, thumbKey: photos.thumbKey });
 	if (!photo) return false;
 	await storage.delete(photo.blobKey);
+	if (photo.thumbKey) await storage.delete(photo.thumbKey);
 	return true;
 }
 

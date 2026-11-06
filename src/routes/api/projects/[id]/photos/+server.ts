@@ -3,6 +3,7 @@ import { photos } from '#lib/server/db/schema.ts';
 import { formId } from '#lib/server/forms.ts';
 import { findRoomInProject } from '#lib/server/rooms.ts';
 import { getProjectOr404 } from '#lib/server/projects.ts';
+import { makeThumbnail, thumbKeyFor } from '#lib/server/thumbnails.ts';
 import { requireUser } from '#lib/server/users.ts';
 import type { RequestHandler } from './$types';
 
@@ -54,17 +55,23 @@ export const POST: RequestHandler = async ({ request, locals, params }) => {
 		error(415, 'Only JPEG, PNG or WebP images are supported');
 	}
 
+	const thumb = await makeThumbnail(new Uint8Array(bytes)).catch(() => null);
+	if (!thumb) error(415, 'That file could not be read as an image');
+
 	const blobKey = `projects/${project.id}/${crypto.randomUUID()}.${ext}`;
+	const thumbKey = thumbKeyFor(blobKey);
 	await locals.storage.put(blobKey, bytes, file.type);
+	await locals.storage.put(thumbKey, thumb, 'image/jpeg');
 
 	try {
 		const [photo] = await locals.db
 			.insert(photos)
-			.values({ projectId: project.id, roomId, blobKey, width, height, createdBy: user.id, updatedBy: user.id })
+			.values({ projectId: project.id, roomId, blobKey, thumbKey, width, height, createdBy: user.id, updatedBy: user.id })
 			.returning();
 		return Response.json(photo, { status: 201 });
 	} catch (e) {
 		await locals.storage.delete(blobKey);
+		await locals.storage.delete(thumbKey);
 		throw e;
 	}
 };

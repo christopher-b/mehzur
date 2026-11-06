@@ -45,6 +45,7 @@ Takes about 15 minutes. Use a **fresh project** so nothing old gets in the way.
 - [ ] Go back and add **three photos at once** from the library. You land on the first one; **Next ›** and **‹ Previous** step through them in the order you uploaded them, and the counter reads "1 of 3", "2 of 3", "3 of 3".
 - [ ] On a photo's page, tap **Add photo** (above the photo, beside the menu). The phone offers **Take Photo** and the library. Choose one: you land on the new photo, which is in the same room (check "Room:"), and **Next ›** / **‹ Previous** now include it. Choose two or three at once: you land on the first of them.
 - [ ] Try to upload something that is not a photo (a PDF or a document, if the phone lets you pick one). You stay on the project page and the upload list in the panel at the bottom of the screen shows the file's name with "Failed: This file couldn't be read as an image." and no Retry button. **Dismiss** clears the list.
+- [ ] On a project with many photos, the thumbnails in the grid appear quickly, even on mobile data.
 - [ ] On the project page, the round **✕** on a thumbnail is easy to see and tap; it asks before deleting. Cancel it.
 
 ## 4. Measuring (the most important part)

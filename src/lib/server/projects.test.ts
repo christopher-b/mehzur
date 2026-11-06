@@ -42,10 +42,10 @@ describe('deleteProject', () => {
 		const kept = await seedProject(db, { name: 'Kept' });
 		const room = await seedRoom(db, doomed.id);
 		const p1 = await seedPhoto(db, doomed.id, { blobKey: 'doomed/1.jpg', roomId: room.id });
-		const p2 = await seedPhoto(db, doomed.id, { blobKey: 'doomed/2.jpg' });
+		const p2 = await seedPhoto(db, doomed.id, { blobKey: 'doomed/2.jpg', thumbKey: 'doomed/2.thumb.jpg' });
 		const keptPhoto = await seedPhoto(db, kept.id, { blobKey: 'kept/1.jpg' });
 		await seedAnnotation(db, p1.id);
-		for (const key of ['doomed/1.jpg', 'doomed/2.jpg', 'kept/1.jpg']) {
+		for (const key of ['doomed/1.jpg', 'doomed/2.jpg', 'doomed/2.thumb.jpg', 'kept/1.jpg']) {
 			await storage.put(key, new Uint8Array([1]), 'image/jpeg');
 		}
 

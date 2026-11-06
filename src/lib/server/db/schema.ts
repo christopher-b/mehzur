@@ -176,6 +176,8 @@ export const photos = sqliteTable(
 		// Null = the "No room" group. Deleting a room moves its photos there.
 		roomId: text('room_id').references((): AnySQLiteColumn => rooms.id, { onDelete: 'set null' }),
 		blobKey: text('blob_key').notNull().unique(),
+		// Null = no thumbnail yet; the grid then falls back to the full image.
+		thumbKey: text('thumb_key').unique(),
 		width: integer('width').notNull(),
 		height: integer('height').notNull(),
 		caption: text('caption'),

@@ -3,6 +3,7 @@
 The app is built: house photo measurement for a small group of invited people, with projects, rooms, areas, CSV/PDF export, home-screen install, error handling and Docker deployment. How it works is in the [README](README.md) and [docs/](docs/); decisions are in [docs/decisions.md](docs/decisions.md).
 
 ## Done recently
+- Photo grid thumbnails: the server makes a 400px JPEG with sharp on upload (`src/lib/server/thumbnails.ts`, `photo.thumb_key`), the grid shows it, and `docker/backfill-thumbs.js` fills in older photos. Still to do: run the backfill on the deployed server, and the phone check in `docs/phone-test-checklist.md`. (`docs/plan-thumbnails.md`)
 - "Add photo" on the photo page uploads into the current photo's room and opens the new photo (its own upload queue, shared with the project page through `createPageUploads`). Still to do: the real-phone check in `docs/phone-test-checklist.md`.
 - Measurement labels are drawn above every line (and the selected line's handles above the labels), so a later line never covers an earlier label.
 - Zoom and pan inside the photo (1× to 8×): buttons, `+`/`-`/`0`, pinch, Ctrl/trackpad wheel and one-finger pan when zoomed (D54, `docs/zoom-plan.md`). Still to do: the real-phone checks in `docs/phone-test-checklist.md`.

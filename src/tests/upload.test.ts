@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { eq } from 'drizzle-orm';
 import { photos } from '#lib/server/db/schema.ts';
 import { POST } from '../routes/api/projects/[id]/photos/+server.ts';
-import { createContext, formData, imageFile, seedProject, seedRoom } from './helpers.ts';
+import { createContext, formData, imageFile, realImageFile, seedProject, seedRoom } from './helpers.ts';
 
 async function setup() {
 	const ctx = createContext();
@@ -10,7 +10,7 @@ async function setup() {
 	return { ...ctx, project };
 }
 
-const jpeg = (size = 16, type = 'image/jpeg') => imageFile(type, size);
+const jpeg = (size?: number, type = 'image/jpeg') => realImageFile(type, size);
 
 async function upload(
 	s: Awaited<ReturnType<typeof setup>>,
@@ -36,8 +36,23 @@ describe('POST /api/projects/[id]/photos', () => {
 		expect(body).toMatchObject({ projectId: s.project.id, width: 640, height: 480, roomId: null });
 		expect(body.blobKey).toMatch(new RegExp(`^projects/${s.project.id}/[0-9a-f-]{36}\\.jpg$`));
 		expect(s.blobs.get(body.blobKey)?.contentType).toBe('image/jpeg');
-		expect(s.blobs.get(body.blobKey)?.data.byteLength).toBe(16);
+		expect(s.blobs.get(body.blobKey)?.data.byteLength).toBeGreaterThan(16);
 		expect(await s.db.select().from(photos)).toHaveLength(1);
+	});
+
+	it('stores a JPEG thumbnail beside the photo and records its key', async () => {
+		const s = await setup();
+		const body = (await json(await upload(s, valid()))) as Photo & { thumbKey: string };
+		expect(body.thumbKey).toBe(body.blobKey.replace(/\.jpg$/, '.thumb.jpg'));
+		expect(s.blobs.get(body.thumbKey)?.contentType).toBe('image/jpeg');
+		expect([...s.blobs.keys()].sort()).toEqual([body.blobKey, body.thumbKey].sort());
+	});
+
+	it('rejects bytes that look like a JPEG but cannot be decoded, storing nothing', async () => {
+		const s = await setup();
+		await expect(upload(s, { ...valid(), file: imageFile('image/jpeg') })).rejects.toMatchObject({ status: 415 });
+		expect(s.blobs.size).toBe(0);
+		expect(await s.db.select().from(photos)).toHaveLength(0);
 	});
 
 	it('puts the photo straight into a room when roomId is given', async () => {
@@ -58,7 +73,7 @@ describe('POST /api/projects/[id]/photos', () => {
 
 	it('rejects a file whose bytes are not the type it claims', async () => {
 		const s = await setup();
-		await expect(upload(s, { ...valid(), file: new File([await imageFile('image/jpeg').arrayBuffer()], 'p.png', { type: 'image/png' }) })).rejects.toMatchObject({ status: 415 });
+		await expect(upload(s, { ...valid(), file: new File([await realImageFile('image/jpeg').arrayBuffer()], 'p.png', { type: 'image/png' }) })).rejects.toMatchObject({ status: 415 });
 		expect(s.blobs.size).toBe(0);
 	});
 
@@ -102,7 +117,7 @@ describe('POST /api/projects/[id]/photos', () => {
 		expect(s.blobs.size).toBe(0);
 	});
 
-	it('removes the stored file if the database insert fails', async () => {
+	it('removes both stored files if the database insert fails', async () => {
 		const s = await setup();
 		// A project deleted between the lookup and the insert would violate the foreign key.
 		const original = s.db.insert.bind(s.db);

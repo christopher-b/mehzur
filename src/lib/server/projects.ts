@@ -36,7 +36,10 @@ export function accessibleTo(db: Db, userId: string) {
 
 /** Deletes the project row (cascading to photos/rooms/annotations) and its photo blobs. */
 export async function deleteProject(db: Db, storage: BlobStorage, id: string) {
-	const rows = await db.select({ blobKey: photos.blobKey }).from(photos).where(eq(photos.projectId, id));
+	const rows = await db
+		.select({ blobKey: photos.blobKey, thumbKey: photos.thumbKey })
+		.from(photos)
+		.where(eq(photos.projectId, id));
 	await db.delete(projects).where(eq(projects.id, id));
-	await Promise.all(rows.map((r) => storage.delete(r.blobKey)));
+	await Promise.all(rows.flatMap((r) => [r.blobKey, r.thumbKey]).filter((k) => k !== null).map((k) => storage.delete(k)));
 }
