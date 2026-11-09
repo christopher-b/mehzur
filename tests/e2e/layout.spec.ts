@@ -127,3 +127,17 @@ test('the header is the same height with and without the project menu button', a
 	const without = (await page.locator('header').first().boundingBox())!.height;
 	expect(without).toBe(withMenu);
 });
+
+test('the photo menu opens inside the screen on a very narrow screen', async ({ page }) => {
+	await page.setViewportSize({ width: 320, height: 800 });
+	await createProject(page, uniqueName('Menu'));
+	await addRoom(page, 'Kitchen');
+	await addAndOpenPhoto(page, 'Kitchen');
+	await photoMenuButton(page).click();
+	const menu = page.getByRole('menu');
+	await expect(menu).toBeVisible();
+	const box = (await menu.boundingBox())!;
+	const width = page.viewportSize()!.width;
+	expect(box.x).toBeGreaterThanOrEqual(0);
+	expect(box.x + box.width).toBeLessThanOrEqual(width);
+});

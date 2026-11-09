@@ -239,41 +239,42 @@
 		</div>
 		<div class="room-row">
 			<span>Room: <strong>{currentRoomName}</strong></span>
-			<span class="spacer"></span>
-			<AddTile
-				mode="file"
-				accept="image/*"
-				multiple
-				text="Add photo"
-				ariaLabel="Add photos to {currentRoomName}"
-				onfiles={(files) => uploads.add(files, data.photo.roomId)}
-			/>
-			<PopupMenu label="Photo menu">
-				{#snippet children(close)}
-					<button
-						type="button"
-						role="menuitem"
-						class="item"
-						onclick={() => {
-							close(true);
-							roomError = '';
-							changingRoom = true;
-						}}
-					>
-						<DoorOpen size={18} />Change room
-					</button>
-					<form
-						method="POST"
-						action="?/deletePhoto"
-						use:enhance={submitWith({
-							onSuccess: close,
-							confirm: () => confirm('Delete this photo and its measurements?')
-						})}
-					>
-						<button type="submit" role="menuitem" class="item danger-item"><Trash2 size={18} />Delete photo</button>
-					</form>
-				{/snippet}
-			</PopupMenu>
+			<div class="room-actions">
+				<AddTile
+					mode="file"
+					accept="image/*"
+					multiple
+					text="Add photo"
+					ariaLabel="Add photos to {currentRoomName}"
+					onfiles={(files) => uploads.add(files, data.photo.roomId)}
+				/>
+				<PopupMenu label="Photo menu">
+					{#snippet children(close)}
+						<button
+							type="button"
+							role="menuitem"
+							class="item"
+							onclick={() => {
+								close(true);
+								roomError = '';
+								changingRoom = true;
+							}}
+						>
+							<DoorOpen size={18} />Change room
+						</button>
+						<form
+							method="POST"
+							action="?/deletePhoto"
+							use:enhance={submitWith({
+								onSuccess: close,
+								confirm: () => confirm('Delete this photo and its measurements?')
+							})}
+						>
+							<button type="submit" role="menuitem" class="item danger-item"><Trash2 size={18} />Delete photo</button>
+						</form>
+					{/snippet}
+				</PopupMenu>
+			</div>
 		</div>
 		<AnnotationCanvas
 			bind:this={canvas}
@@ -378,5 +379,12 @@
 		align-items: center;
 		gap: 0.6rem;
 		margin-bottom: 0.5rem;
+	}
+	/* Wraps as one unit and stays at the right, so the menu (which opens leftwards) never ends up at the left edge. */
+	.room-actions {
+		display: flex;
+		align-items: center;
+		gap: 0.6rem;
+		margin-left: auto;
 	}
 </style>
